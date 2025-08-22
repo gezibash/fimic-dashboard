@@ -55,7 +55,9 @@ export const UserDetailView = ({
     'lastMessageDate' in user ? user.lastMessageDate : null;
 
   const formatLastMessage = (date: number | null) => {
-    if (!date) return 'Never';
+    if (!date) {
+      return 'Never';
+    }
     return formatDistance(new Date(date), new Date(), { addSuffix: true });
   };
 
@@ -235,8 +237,11 @@ const UserDetailViewSkeleton = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton className="h-16 w-full" key={i} />
+            {Array.from({ length: 3 }, (_, i) => (
+              <Skeleton
+                className="h-16 w-full"
+                key={`user-detail-skeleton-${i}`}
+              />
             ))}
           </div>
         </CardContent>
