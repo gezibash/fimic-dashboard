@@ -56,7 +56,6 @@ export const UsersGrid = ({
       {
         field: 'messageCount',
         headerName: 'Messages',
-        width: 100,
         cellClass: 'text-center',
         valueFormatter: (params: { value?: number }) => {
           return params.value?.toLocaleString() ?? '0';
@@ -95,7 +94,7 @@ export const UsersGrid = ({
       {
         headerName: 'Actions',
         cellRenderer: ActionsCellRenderer,
-        width: 80,
+        width: 30,
         pinned: 'right',
         sortable: false,
         filter: false,

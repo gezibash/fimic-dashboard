@@ -29,7 +29,11 @@ export const ActionsCellRenderer = ({ data }: ActionsCellRendererProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button className="h-8 w-8 p-0" size="sm" variant="ghost">
+        <Button
+          className="h-8 w-8 cursor-pointer p-0 ring-0"
+          size="sm"
+          variant="ghost"
+        >
           <MoreHorizontal className="h-4 w-4" />
           <span className="sr-only">Open menu</span>
         </Button>
