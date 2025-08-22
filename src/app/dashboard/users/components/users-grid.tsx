@@ -1,8 +1,8 @@
 'use client';
 
 import type { ColDef } from 'ag-grid-community';
-import { useMemo, useRef } from 'react';
 import { formatDistance } from 'date-fns';
+import { useMemo, useRef } from 'react';
 import {
   AGGridWrapper,
   type AGGridWrapperRef,
@@ -67,10 +67,15 @@ export const UsersGrid = ({
         headerName: 'Last Message',
         width: 130,
         valueFormatter: (params: { value?: number | null; data?: User }) => {
-          if (!params.value || !params.data || params.data.messageCount === 0) {
+          if (
+            !(params.value && params.data) ||
+            params.data.messageCount === 0
+          ) {
             return 'Never';
           }
-          return formatDistance(new Date(params.value), new Date(), { addSuffix: true });
+          return formatDistance(new Date(params.value), new Date(), {
+            addSuffix: true,
+          });
         },
       },
       {
