@@ -3,11 +3,61 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { api } from '../../../../../convex/_generated/api';
 import type { Id } from '../../../../../convex/_generated/dataModel';
 
-const client = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const client = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL ?? '');
+
+function validateName(name: unknown) {
+  return name !== undefined && (typeof name !== 'string' || !name.trim());
+}
+
+function validateEmail(email: unknown) {
+  return (
+    email !== undefined &&
+    email &&
+    typeof email === 'string' &&
+    !EMAIL_REGEX.test(email)
+  );
+}
+
+function handleConvexError(error: unknown) {
+  if (error instanceof Error) {
+    if (error.message.includes('User not found')) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'User not found',
+          code: 'USER_NOT_FOUND',
+        },
+        { status: 404 }
+      );
+    }
+
+    if (error.message.includes('Email already registered')) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Email already registered by another user',
+          code: 'EMAIL_EXISTS',
+        },
+        { status: 409 }
+      );
+    }
+  }
+
+  return NextResponse.json(
+    {
+      success: false,
+      error: 'Failed to update user',
+      code: 'INTERNAL_ERROR',
+    },
+    { status: 500 }
+  );
+}
 
 // GET user by ID
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -44,9 +94,7 @@ export async function GET(
       success: true,
       data: user,
     });
-  } catch (error) {
-    console.error('Get user by ID error:', error);
-
+  } catch (_error) {
     return NextResponse.json(
       {
         success: false,
@@ -80,7 +128,7 @@ export async function PATCH(
     }
 
     // Server-side validation
-    if (name !== undefined && (typeof name !== 'string' || !name.trim())) {
+    if (validateName(name)) {
       return NextResponse.json(
         {
           success: false,
@@ -92,18 +140,15 @@ export async function PATCH(
     }
 
     // Email validation (if provided)
-    if (email !== undefined && email && typeof email === 'string') {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'Invalid email format',
-            code: 'INVALID_EMAIL_FORMAT',
-          },
-          { status: 400 }
-        );
-      }
+    if (validateEmail(email)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Invalid email format',
+          code: 'INVALID_EMAIL_FORMAT',
+        },
+        { status: 400 }
+      );
     }
 
     // Call Convex mutation to update user
@@ -119,47 +164,13 @@ export async function PATCH(
       data: updatedUser,
     });
   } catch (error) {
-    console.error('Update user error:', error);
-
-    // Handle Convex errors
-    if (error instanceof Error) {
-      if (error.message.includes('User not found')) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'User not found',
-            code: 'USER_NOT_FOUND',
-          },
-          { status: 404 }
-        );
-      }
-
-      if (error.message.includes('Email already registered')) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'Email already registered by another user',
-            code: 'EMAIL_EXISTS',
-          },
-          { status: 409 }
-        );
-      }
-    }
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to update user',
-        code: 'INTERNAL_ERROR',
-      },
-      { status: 500 }
-    );
+    return handleConvexError(error);
   }
 }
 
 // DELETE user by ID
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -186,8 +197,6 @@ export async function DELETE(
       data: result,
     });
   } catch (error) {
-    console.error('Delete user error:', error);
-
     // Handle Convex errors
     if (error instanceof Error && error.message.includes('User not found')) {
       return NextResponse.json(

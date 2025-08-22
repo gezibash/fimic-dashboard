@@ -53,15 +53,25 @@ export default function ConversationsPage() {
   };
 
   const getTimeAgo = (timestamp: number) => {
+    const MINUTE_MS = 60_000;
+    const HOUR_MS = 3_600_000;
+    const DAY_MS = 86_400_000;
+
     const now = Date.now();
     const diff = now - timestamp;
-    const minutes = Math.floor(diff / 60_000);
-    const hours = Math.floor(diff / 3_600_000);
-    const days = Math.floor(diff / 86_400_000);
+    const minutes = Math.floor(diff / MINUTE_MS);
+    const hours = Math.floor(diff / HOUR_MS);
+    const days = Math.floor(diff / DAY_MS);
 
-    if (days > 0) return `${days}d ago`;
-    if (hours > 0) return `${hours}h ago`;
-    if (minutes > 0) return `${minutes}m ago`;
+    if (days > 0) {
+      return `${days}d ago`;
+    }
+    if (hours > 0) {
+      return `${hours}h ago`;
+    }
+    if (minutes > 0) {
+      return `${minutes}m ago`;
+    }
     return 'Just now';
   };
 

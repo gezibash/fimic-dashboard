@@ -56,21 +56,35 @@ export default function DashboardPage() {
   };
 
   const getTimeAgo = (timestamp: number) => {
+    const MINUTE_MS = 60_000;
+    const HOUR_MS = 3_600_000;
+    const DAY_MS = 86_400_000;
+
     const now = Date.now();
     const diff = now - timestamp;
-    const minutes = Math.floor(diff / 60_000);
-    const hours = Math.floor(diff / 3_600_000);
-    const days = Math.floor(diff / 86_400_000);
+    const minutes = Math.floor(diff / MINUTE_MS);
+    const hours = Math.floor(diff / HOUR_MS);
+    const days = Math.floor(diff / DAY_MS);
 
-    if (days > 0) return `${days}d ago`;
-    if (hours > 0) return `${hours}h ago`;
-    if (minutes > 0) return `${minutes}m ago`;
+    if (days > 0) {
+      return `${days}d ago`;
+    }
+    if (hours > 0) {
+      return `${hours}h ago`;
+    }
+    if (minutes > 0) {
+      return `${minutes}m ago`;
+    }
     return 'Just now';
   };
 
   // Get recent items (last 5)
-  const recentConversationsLimited = recentConversations.slice(0, 5);
-  const recentUsersLimited = recentUsers.slice(0, 5);
+  const RECENT_ITEMS_LIMIT = 5;
+  const recentConversationsLimited = recentConversations.slice(
+    0,
+    RECENT_ITEMS_LIMIT
+  );
+  const recentUsersLimited = recentUsers.slice(0, RECENT_ITEMS_LIMIT);
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 pt-0">

@@ -53,23 +53,35 @@ export default function FilesPage() {
   };
 
   const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) {
+      return '0 Bytes';
+    }
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Number.parseFloat((bytes / k ** i).toFixed(2)) + ' ' + sizes[i];
+    return `${Number.parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
   };
 
   const getFileIcon = (fileType: string) => {
-    if (fileType.startsWith('image/')) return <Image className="h-4 w-4" />;
-    if (fileType === 'application/pdf') return <FileText className="h-4 w-4" />;
+    if (fileType.startsWith('image/')) {
+      return <Image className="h-4 w-4" />;
+    }
+    if (fileType === 'application/pdf') {
+      return <FileText className="h-4 w-4" />;
+    }
     return <File className="h-4 w-4" />;
   };
 
   const getFileTypeColor = (fileType: string) => {
-    if (fileType.startsWith('image/')) return 'bg-green-100 text-green-800';
-    if (fileType === 'application/pdf') return 'bg-red-100 text-red-800';
-    if (fileType.startsWith('text/')) return 'bg-blue-100 text-blue-800';
+    if (fileType.startsWith('image/')) {
+      return 'bg-green-100 text-green-800';
+    }
+    if (fileType === 'application/pdf') {
+      return 'bg-red-100 text-red-800';
+    }
+    if (fileType.startsWith('text/')) {
+      return 'bg-blue-100 text-blue-800';
+    }
     return 'bg-gray-100 text-gray-800';
   };
 
