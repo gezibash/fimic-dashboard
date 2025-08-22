@@ -10,3 +10,14 @@ export const idSchema = z.string().min(1);
 
 export type Pagination = z.infer<typeof paginationSchema>;
 export type Id = z.infer<typeof idSchema>;
+
+// Re-export user validation types
+export type {
+  ApiError,
+  ApiResponse,
+  ApiSuccess,
+  UserIdParams,
+  UserPhoneQuery,
+  UserRegistrationInput,
+  UserUpdateInput,
+} from './user';
