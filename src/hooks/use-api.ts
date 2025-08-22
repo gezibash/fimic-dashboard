@@ -39,8 +39,8 @@ export function useApi<T, P = unknown>(
             requestSchema.parse(payload);
           } catch (validationError) {
             if (validationError instanceof z.ZodError) {
-              const errorMessage =
-                validationError.errors[0]?.message || 'Invalid request data';
+              const firstError = validationError.issues[0];
+              const errorMessage = firstError?.message || 'Invalid request data';
               setError(errorMessage);
               onError?.(errorMessage);
               return null;

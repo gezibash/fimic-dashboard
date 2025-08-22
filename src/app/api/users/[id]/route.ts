@@ -86,7 +86,8 @@ export async function PATCH(
     // Validate request body
     const bodyValidation = validateRequestBody(userUpdateSchema, body);
     if (!bodyValidation.success) {
-      const firstError = bodyValidation.error.errors[0];
+      const firstError = bodyValidation.error.issues[0];
+      if (!firstError) return createErrorResponse('Validation failed', 'VALIDATION_ERROR', 400);
       let errorCode = 'VALIDATION_ERROR';
 
       if (firstError.path.includes('name')) {

@@ -17,7 +17,8 @@ export async function GET(request: NextRequest) {
     // Validate search parameters with Zod
     const validation = validateSearchParams(userPhoneQuerySchema, searchParams);
     if (!validation.success) {
-      const firstError = validation.error.errors[0];
+      const firstError = validation.error.issues[0];
+      if (!firstError) return createErrorResponse('Validation failed', 'VALIDATION_ERROR', 400);
       return createErrorResponse(
         firstError.message,
         firstError.path.includes('phone')

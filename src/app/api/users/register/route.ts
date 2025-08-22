@@ -39,7 +39,8 @@ export async function POST(request: NextRequest) {
     // Validate request body with Zod
     const validation = validateRequestBody(userRegistrationSchema, body);
     if (!validation.success) {
-      const firstError = validation.error.errors[0];
+      const firstError = validation.error.issues[0];
+      if (!firstError) return createErrorResponse('Validation failed', 'VALIDATION_ERROR', 400);
       let errorCode = 'VALIDATION_ERROR';
 
       if (firstError.code === 'too_small' && firstError.path.includes('name')) {

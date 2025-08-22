@@ -52,7 +52,7 @@ export function useFormValidation<T extends Record<string, unknown>>({
     <K extends keyof T>(field: K): boolean => {
       try {
         // Create a partial schema for single field validation
-        const fieldSchema = schema.pick({ [field]: true } as any);
+        const fieldSchema = (schema as any).pick({ [field]: true });
         const fieldValue = { [field]: values[field] };
         fieldSchema.parse(fieldValue);
 
@@ -65,11 +65,13 @@ export function useFormValidation<T extends Record<string, unknown>>({
         return true;
       } catch (error) {
         if (error instanceof z.ZodError) {
-          const fieldError = error.errors[0];
-          setErrors((prev) => ({
-            ...prev,
-            [field as string]: fieldError.message,
-          }));
+          const fieldError = error.issues[0];
+          if (fieldError) {
+            setErrors((prev) => ({
+              ...prev,
+              [field as string]: fieldError.message,
+            }));
+          }
         }
         return false;
       }
@@ -85,10 +87,10 @@ export function useFormValidation<T extends Record<string, unknown>>({
     } catch (error) {
       if (error instanceof z.ZodError) {
         const newErrors: Record<string, string> = {};
-        error.errors.forEach((err) => {
+        for (const err of error.issues) {
           const path = err.path.join('.');
           newErrors[path] = err.message;
-        });
+        }
         setErrors(newErrors);
       }
       return false;
