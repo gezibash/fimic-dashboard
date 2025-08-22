@@ -20,7 +20,6 @@ import {
   useMemo,
   useRef,
 } from 'react';
-import { cn } from '@/lib/utils';
 import { theme } from './theme';
 
 // Register AG Grid modules
@@ -116,19 +115,6 @@ const AGGridWrapperComponent = <
 
       // Pagination
       pagination: true,
-      paginationPageSize: 50,
-      paginationPageSizeSelector: [25, 50, 100, 200],
-
-      // Animation
-      animateRows: true,
-
-      // Loading and empty states
-      noRowsOverlayComponent: () =>
-        `<div class="ag-overlay-no-rows-center">${noDataMessage}</div>`,
-
-      // Accessibility
-      suppressMenuHide: false,
-      suppressMovableColumns: false,
 
       // Default column definition
       defaultColDef: {
@@ -136,10 +122,9 @@ const AGGridWrapperComponent = <
         sortable: true,
         filter: true,
         floatingFilter: false,
-        flex: 1,
       },
     }),
-    [enableSelection, selectionMode, noDataMessage]
+    [enableSelection, selectionMode]
   );
 
   // Merged grid options - don't memoize gridOptions since it's passed as prop
@@ -205,30 +190,22 @@ const AGGridWrapperComponent = <
     []
   );
 
-  const containerStyle: React.CSSProperties = {
-    height,
-    width,
-    ...style,
-  };
-
   return (
-    <div className={cn(className)} style={containerStyle}>
-      <AgGridReact<TData>
-        ref={gridRef}
-        theme={theme}
-        {...mergedGridOptions}
-        loadingOverlayComponent={() => (
-          <div className="flex h-full w-full items-center justify-center">
-            <Loader2 className="h-4 w-4 animate-spin" />
-          </div>
-        )}
-        onCellClicked={onCellClicked}
-        onFilterChanged={onFilterChanged}
-        onGridReady={onGridReady}
-        onRowSelected={onRowSelected}
-        onSortChanged={onSortChanged}
-      />
-    </div>
+    <AgGridReact<TData>
+      ref={gridRef}
+      {...mergedGridOptions}
+      loadingOverlayComponent={() => (
+        <div className="flex h-full w-full items-center justify-center">
+          <Loader2 className="h-4 w-4 animate-spin" />
+        </div>
+      )}
+      onCellClicked={onCellClicked}
+      onFilterChanged={onFilterChanged}
+      onGridReady={onGridReady}
+      onRowSelected={onRowSelected}
+      onSortChanged={onSortChanged}
+      theme={theme}
+    />
   );
 };
 

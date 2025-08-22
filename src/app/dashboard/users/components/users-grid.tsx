@@ -36,37 +36,13 @@ export const UsersGrid = ({
       {
         field: '_id',
         headerName: 'ID',
-        flex: 1,
-        minWidth: 50,
-        cellRenderer: (params: { data: User }) => {
-          const { _id } = params.data;
-          return (
-            <div className="flex flex-col">
-              <div className="font-mono text-sm">{_id}</div>
-            </div>
-          );
-        },
+        maxWidth: 300,
+        cellClass: 'text-gray-400',
       },
       {
         field: 'name',
         headerName: 'Name',
-        flex: 2,
-        minWidth: 200,
-        cellRenderer: (params: { data: User }) => {
-          const { name } = params.data;
-          return (
-            <div className="flex flex-col">
-              <div className="font-mono text-sm">{name}</div>
-            </div>
-          );
-        },
-      },
-      {
-        field: 'email',
-        headerName: 'Email',
-        flex: 2,
-        minWidth: 200,
-        hide: true, // Hidden since we show it in the name column
+        flex: 1,
       },
       {
         field: 'phone',
@@ -102,14 +78,8 @@ export const UsersGrid = ({
       loading={loading}
       loadingMessage="Loading users..."
       noDataMessage="No users found"
-      // Custom grid options
-      paginationPageSize={25}
-      paginationPageSizeSelector={[25, 50, 100]}
-      ref={gridRef} // Taller rows for the two-line name/email layout
+      ref={gridRef}
       rowData={users}
-      rowHeight={56}
-      selectionMode="single"
-      tooltipShowDelay={500}
     />
   );
 };

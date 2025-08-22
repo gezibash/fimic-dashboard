@@ -1,9 +1,9 @@
-import { themeAlpine } from 'ag-grid-community';
+import { themeQuartz } from 'ag-grid-community';
 
-export const theme = themeAlpine.withParams({
-  fontFamily: 'var(--font-geist)',
-  fontSize: 13,
-  headerFontSize: 14,
+export const theme = themeQuartz.withParams({
+  fontFamily: 'var(--font-geist-sans)',
+  fontSize: 12,
+  headerFontSize: 12,
   rowHoverColor: 'var(--color-primary-foreground)',
   selectedRowBackgroundColor: 'var(--color-primary-foreground)',
 });
