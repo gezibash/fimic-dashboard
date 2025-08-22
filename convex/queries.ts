@@ -21,7 +21,7 @@ export const getAllConversations = query({
   handler: async (ctx) => {
     const conversations = await ctx.db
       .query('conversations')
-      .order('desc', 'lastMessageAt')
+      .order('desc')
       .collect();
 
     return await Promise.all(
@@ -96,7 +96,7 @@ export const getAllMessages = query({
   handler: async (ctx) => {
     const messages = await ctx.db
       .query('messages')
-      .order('desc', 'createdAt')
+      .order('desc')
       .collect();
 
     return await Promise.all(

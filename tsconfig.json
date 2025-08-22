@@ -20,6 +20,7 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
       "convex/*": ["./node_modules/convex/*"]
     },
     "strictNullChecks": true

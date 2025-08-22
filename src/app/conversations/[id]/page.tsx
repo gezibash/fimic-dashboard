@@ -172,23 +172,26 @@ export default function ConversationDetailPage() {
                         <div className="text-muted-foreground text-xs">
                           Attachments:
                         </div>
-                        {message.files.map((file) => (
-                          <div
-                            className="flex items-center gap-2 rounded border bg-background p-2"
-                            key={file._id}
-                          >
-                            <File className="h-4 w-4" />
-                            <div className="min-w-0 flex-1">
-                              <div className="truncate font-medium text-sm">
-                                {file.fileName}
+                        {message.files.map(
+                          (file) =>
+                            file && (
+                              <div
+                                className="flex items-center gap-2 rounded border bg-background p-2"
+                                key={file._id}
+                              >
+                                <File className="h-4 w-4" />
+                                <div className="min-w-0 flex-1">
+                                  <div className="truncate font-medium text-sm">
+                                    {file.fileName}
+                                  </div>
+                                  <div className="text-muted-foreground text-xs">
+                                    {formatFileSize(file.fileSize)} •{' '}
+                                    {file.fileType}
+                                  </div>
+                                </div>
                               </div>
-                              <div className="text-muted-foreground text-xs">
-                                {formatFileSize(file.fileSize)} •{' '}
-                                {file.fileType}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
+                            )
+                        )}
                       </div>
                     )}
                   </div>
