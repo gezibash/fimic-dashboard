@@ -1,8 +1,11 @@
 'use client';
 
-import type { CellClickedEvent, ColDef } from 'ag-grid-community';
+import type { ColDef } from 'ag-grid-community';
 import { useMemo, useRef } from 'react';
-import { AGGridWrapper, type AGGridWrapperRef } from './ag-grid-wrapper';
+import {
+  AGGridWrapper,
+  type AGGridWrapperRef,
+} from '@/components/ag-grid/ag-grid-wrapper';
 
 export type User = {
   _id: string;
@@ -17,15 +20,12 @@ export type User = {
 type UsersGridProps = {
   users: User[];
   height?: number | string;
-  onUserSelect?: (user: User) => void;
   darkMode?: boolean;
   loading?: boolean;
 };
 
 export const UsersGrid = ({
   users,
-  height = 600,
-  onUserSelect,
   darkMode = false,
   loading = false,
 }: UsersGridProps) => {
@@ -34,18 +34,29 @@ export const UsersGrid = ({
   const columnDefs = useMemo(
     (): ColDef<User>[] => [
       {
+        field: '_id',
+        headerName: 'ID',
+        flex: 1,
+        minWidth: 50,
+        cellRenderer: (params: { data: User }) => {
+          const { _id } = params.data;
+          return (
+            <div className="flex flex-col">
+              <div className="font-mono text-sm">{_id}</div>
+            </div>
+          );
+        },
+      },
+      {
         field: 'name',
         headerName: 'Name',
         flex: 2,
-        minWidth: 150,
+        minWidth: 200,
         cellRenderer: (params: { data: User }) => {
-          const { name, email } = params.data;
+          const { name } = params.data;
           return (
-            <div className="flex flex-col py-1">
-              <div className="font-medium text-sm">{name}</div>
-              {email && (
-                <div className="text-muted-foreground text-xs">{email}</div>
-              )}
+            <div className="flex flex-col">
+              <div className="font-mono text-sm">{name}</div>
             </div>
           );
         },
@@ -79,63 +90,25 @@ export const UsersGrid = ({
           });
         },
       },
-      {
-        field: '_id',
-        headerName: 'ID',
-        flex: 1,
-        minWidth: 100,
-        valueFormatter: (params: { value?: string }) => {
-          if (!params.value) {
-            return '-';
-          }
-          return `${params.value.substring(0, 8)}...`;
-        },
-      },
     ],
     []
   );
 
-  const handleCellClicked = (event: CellClickedEvent<User>) => {
-    if (event.data && onUserSelect) {
-      onUserSelect(event.data);
-    }
-  };
-
-  const handleRowSelectionChanged = (selectedRows: User[]) => {
-    if (selectedRows.length > 0 && onUserSelect) {
-      onUserSelect(selectedRows[0]);
-    }
-  };
-
   return (
     <AGGridWrapper<User>
-      allowContextMenuWithControlKey={true}
       animateRows={true}
       columnDefs={columnDefs}
       darkMode={darkMode}
-      enableSelection={true}
-      getRowClass={(_params) => {
-        // Add custom row styling here if needed
-        return '';
-      }}
-      height={height}
       loading={loading}
       loadingMessage="Loading users..."
       noDataMessage="No users found"
-      onCellClicked={handleCellClicked}
-      onRowSelectionChanged={handleRowSelectionChanged}
       // Custom grid options
       paginationPageSize={25}
       paginationPageSizeSelector={[25, 50, 100]}
       ref={gridRef} // Taller rows for the two-line name/email layout
       rowData={users}
-      // Row styling
       rowHeight={56}
-      // Tooltips
       selectionMode="single"
-      // Context menu
-      suppressMenuHide={false}
-      // Column menu
       tooltipShowDelay={500}
     />
   );

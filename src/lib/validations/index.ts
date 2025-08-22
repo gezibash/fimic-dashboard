@@ -1,8 +1,4 @@
-// Common validation utilities
-export { z } from 'zod';
-export * from './user';
-
-// Generic API response types that can be reused
+/// Generic API response types that can be reused
 import { z } from 'zod';
 
 export const paginationSchema = z.object({

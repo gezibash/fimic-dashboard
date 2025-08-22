@@ -1,35 +1,27 @@
 'use client';
 
-import type {
-  CellClickedEvent,
-  FilterChangedEvent,
-  GridApi,
-  GridOptions,
-  GridReadyEvent,
-  RowSelectedEvent,
-  SortChangedEvent,
+import {
+  AllCommunityModule,
+  type CellClickedEvent,
+  type FilterChangedEvent,
+  type GridApi,
+  type GridOptions,
+  type GridReadyEvent,
+  ModuleRegistry,
+  type RowSelectedEvent,
+  type SortChangedEvent,
 } from 'ag-grid-community';
-import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
+import { Loader2 } from 'lucide-react';
 import {
   forwardRef,
   useCallback,
-  useEffect,
   useImperativeHandle,
   useMemo,
   useRef,
 } from 'react';
 import { cn } from '@/lib/utils';
-import {
-  AG_GRID_THEME_CLASS,
-  AG_GRID_THEME_CLASS_DARK,
-  createGeistTheme,
-  getGridThemeStyles,
-} from './theme';
-
-// Import AG Grid CSS
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-quartz.css';
+import { theme } from './theme';
 
 // Register AG Grid modules
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -87,7 +79,7 @@ const AGGridWrapperComponent = <
   TData extends Record<string, unknown> = Record<string, unknown>,
 >(
   {
-    height = 400,
+    height = '100%',
     width = '100%',
     darkMode = false,
     className,
@@ -110,21 +102,16 @@ const AGGridWrapperComponent = <
   const gridRef = useRef<AgGridReact<TData>>(null);
   const gridApiRef = useRef<GridApi<TData> | null>(null);
 
-  // Theme configuration
-  const themeConfig = useMemo(() => createGeistTheme(darkMode), [darkMode]);
-  const themeStyles = useMemo(() => getGridThemeStyles(darkMode), [darkMode]);
-  const themeClassName = darkMode
-    ? AG_GRID_THEME_CLASS_DARK
-    : AG_GRID_THEME_CLASS;
-
   // Default grid options with sensible defaults
   const defaultGridOptions: Partial<GridOptions<TData>> = useMemo(
     () => ({
       // Selection
       ...(enableSelection && {
-        rowSelection: selectionMode === 'multiple' ? 'multiple' : 'single',
-        suppressRowClickSelection: false,
-        suppressRowDeselection: selectionMode === 'single',
+        rowSelection: {
+          mode: selectionMode === 'multiple' ? 'multiRow' : 'singleRow',
+          enableClickSelection: true,
+          enableSelectionWithoutKeys: selectionMode === 'single',
+        },
       }),
 
       // Pagination
@@ -132,22 +119,10 @@ const AGGridWrapperComponent = <
       paginationPageSize: 50,
       paginationPageSizeSelector: [25, 50, 100, 200],
 
-      // Sorting and filtering
-      sortable: true,
-      filter: true,
-      floatingFilter: false,
-
-      // Row and column sizing
-      rowHeight: 42,
-      headerHeight: 48,
-      suppressSizeToFit: false,
-
       // Animation
       animateRows: true,
 
       // Loading and empty states
-      loadingOverlayComponent: () =>
-        `<div class="ag-overlay-loading-center">${loadingMessage}</div>`,
       noRowsOverlayComponent: () =>
         `<div class="ag-overlay-no-rows-center">${noDataMessage}</div>`,
 
@@ -160,13 +135,11 @@ const AGGridWrapperComponent = <
         resizable: true,
         sortable: true,
         filter: true,
+        floatingFilter: false,
         flex: 1,
-        minWidth: 100,
       },
-
-      ...themeConfig,
     }),
-    [enableSelection, selectionMode, loadingMessage, noDataMessage, themeConfig]
+    [enableSelection, selectionMode, noDataMessage]
   );
 
   // Merged grid options - don't memoize gridOptions since it's passed as prop
@@ -232,30 +205,23 @@ const AGGridWrapperComponent = <
     []
   );
 
-  // Handle loading state
-  useEffect(() => {
-    if (loading && gridApiRef.current) {
-      gridApiRef.current.showLoadingOverlay();
-    } else if (!loading && gridApiRef.current) {
-      gridApiRef.current.hideOverlay();
-    }
-  }, [loading]);
-
   const containerStyle: React.CSSProperties = {
     height,
     width,
-    ...themeStyles,
     ...style,
   };
 
   return (
-    <div
-      className={cn(themeClassName, 'rounded-md border', className)}
-      style={containerStyle}
-    >
+    <div className={cn(className)} style={containerStyle}>
       <AgGridReact<TData>
         ref={gridRef}
+        theme={theme}
         {...mergedGridOptions}
+        loadingOverlayComponent={() => (
+          <div className="flex h-full w-full items-center justify-center">
+            <Loader2 className="h-4 w-4 animate-spin" />
+          </div>
+        )}
         onCellClicked={onCellClicked}
         onFilterChanged={onFilterChanged}
         onGridReady={onGridReady}

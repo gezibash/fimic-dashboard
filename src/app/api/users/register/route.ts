@@ -40,9 +40,7 @@ export async function POST(request: NextRequest) {
     const validation = validateRequestBody(userRegistrationSchema, body);
     if (!validation.success) {
       const firstError = validation.error.issues[0];
-      if (!firstError) return createErrorResponse('Validation failed', 'VALIDATION_ERROR', 400);
       let errorCode = 'VALIDATION_ERROR';
-
       if (firstError.code === 'too_small' && firstError.path.includes('name')) {
         errorCode = 'INVALID_NAME';
       } else if (firstError.path.includes('phone')) {

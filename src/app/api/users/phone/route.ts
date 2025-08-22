@@ -18,7 +18,6 @@ export async function GET(request: NextRequest) {
     const validation = validateSearchParams(userPhoneQuerySchema, searchParams);
     if (!validation.success) {
       const firstError = validation.error.issues[0];
-      if (!firstError) return createErrorResponse('Validation failed', 'VALIDATION_ERROR', 400);
       return createErrorResponse(
         firstError.message,
         firstError.path.includes('phone')

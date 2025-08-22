@@ -1,14 +1,7 @@
 'use client';
 
 import { useUser } from '@clerk/nextjs';
-import {
-  Building,
-  Command,
-  FileText,
-  MessageSquare,
-  Settings2,
-  Users,
-} from 'lucide-react';
+import { Command, FileText, Settings2, Users } from 'lucide-react';
 import Link from 'next/link';
 import type * as React from 'react';
 
@@ -27,20 +20,9 @@ import {
 
 const navMainItems = [
   {
-    title: 'Dashboard',
-    url: '/',
-    icon: Building,
-    isActive: true,
-  },
-  {
     title: 'Users',
-    url: '/users',
+    url: '/dashboard/users',
     icon: Users,
-  },
-  {
-    title: 'Conversations',
-    url: '/conversations',
-    icon: MessageSquare,
   },
   {
     title: 'Files',

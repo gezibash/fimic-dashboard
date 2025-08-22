@@ -62,7 +62,7 @@ export const apiResponseSchema = z.union([apiErrorSchema, apiSuccessSchema]);
 export const userUpdateSchema = z.object({
   name: z.string().min(1).trim().optional(),
   email: emailSchema,
-  avatarUrl: z.string().url().optional(),
+  avatarUrl: z.url().optional(),
 });
 
 // ID parameter schema
