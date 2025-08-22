@@ -24,17 +24,6 @@
         "source.organizeImports.biome": true
       }
     },
-    "JSX": {
-      "formatter": {
-        "language_server": {
-          "name": "biome"
-        }
-      },
-      "code_actions_on_format": {
-        "source.fixAll.biome": true,
-        "source.organizeImports.biome": true
-      }
-    },
     "TSX": {
       "formatter": {
         "language_server": {
@@ -45,6 +34,20 @@
         "source.fixAll.biome": true,
         "source.organizeImports.biome": true
       }
+    },
+    "JSON": {
+      "formatter": {
+        "language_server": {
+          "name": "biome"
+        }
+      }
+    },
+    "JSONC": {
+      "formatter": {
+        "language_server": {
+          "name": "biome"
+        }
+      }
     }
   },
   "lsp": {
@@ -52,10 +55,69 @@
       "settings": {
         "typescript": {
           "preferences": {
-            "includePackageJsonAutoImports": "on"
+            "includePackageJsonAutoImports": "on",
+            "importModuleSpecifier": "relative",
+            "includeCompletionsForModuleExports": true,
+            "includeAutomaticOptionalChainCompletions": true
+          },
+          "updateImportsOnFileMove": {
+            "enabled": "always"
+          },
+          "suggest": {
+            "completeFunctionCalls": true,
+            "includeCompletionsForImportStatements": true,
+            "includeAutomaticOptionalChainCompletions": true
+          },
+          "inlayHints": {
+            "includeInlayParameterNameHints": "literals",
+            "includeInlayParameterNameHintsWhenArgumentMatchesName": false,
+            "includeInlayFunctionParameterTypeHints": false,
+            "includeInlayVariableTypeHints": false,
+            "includeInlayPropertyDeclarationTypeHints": false,
+            "includeInlayFunctionLikeReturnTypeHints": true,
+            "includeInlayEnumMemberValueHints": true
           }
         }
       }
+    },
+    "tailwindcss-language-server": {
+      "settings": {
+        "tailwindCSS": {
+          "emmetCompletions": true,
+          "includeLanguages": {
+            "typescript": "javascript",
+            "typescriptreact": "javascriptreact"
+          },
+          "experimental": {
+            "classRegex": [
+              ["cn\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+              ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+              ["clsx\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
+            ]
+          }
+        }
+      }
+    },
+    "biome": {
+      "settings": {
+        "require_config_file": true
+      }
     }
-  }
+  },
+  "file_types": {
+    "JSONC": ["*.jsonc", "tsconfig.json", "jsconfig.json"],
+    "JSON": ["*.json", "!tsconfig.json", "!jsconfig.json"]
+  },
+  "terminal": {
+    "shell": {
+      "program": "bun"
+    }
+  },
+  "vim_mode": false,
+  "tab_size": 2,
+  "ensure_final_newline_on_save": true,
+  "remove_trailing_whitespace_on_save": true,
+  "show_whitespaces": "selection",
+  "show_wrap_guides": true,
+  "wrap_guides": [80, 100]
 }
