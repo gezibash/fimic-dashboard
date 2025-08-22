@@ -1,28 +1,50 @@
 import { ConvexHttpClient } from 'convex/browser';
-import { type NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import {
+  createErrorResponse,
+  createSuccessResponse,
+  validateRequestBody,
+  validateRouteParams,
+} from '@/lib/utils';
+import { userIdParamsSchema, userUpdateSchema } from '@/lib/validations/user';
 import { api } from '../../../../../convex/_generated/api';
 import type { Id } from '../../../../../convex/_generated/dataModel';
 
-const client = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+const client = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL ?? '');
+
+function handleConvexError(error: unknown) {
+  if (error instanceof Error) {
+    if (error.message.includes('User not found')) {
+      return createErrorResponse('User not found', 'USER_NOT_FOUND', 404);
+    }
+
+    if (error.message.includes('Email already registered')) {
+      return createErrorResponse(
+        'Email already registered by another user',
+        'EMAIL_EXISTS',
+        409
+      );
+    }
+  }
+
+  return createErrorResponse('Failed to update user', 'INTERNAL_ERROR', 500);
+}
 
 // GET user by ID
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const routeParams = await params;
 
-    if (!id) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'User ID is required',
-          code: 'MISSING_ID',
-        },
-        { status: 400 }
-      );
+    // Validate route parameters
+    const validation = validateRouteParams(userIdParamsSchema, routeParams);
+    if (!validation.success) {
+      return createErrorResponse('User ID is required', 'MISSING_ID', 400);
     }
+
+    const { id } = validation.data;
 
     // Call Convex query to get user by ID
     const user = await client.query(api.queries.getUserById, {
@@ -30,30 +52,15 @@ export async function GET(
     });
 
     if (!user) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'User not found',
-          code: 'USER_NOT_FOUND',
-        },
-        { status: 404 }
-      );
+      return createErrorResponse('User not found', 'USER_NOT_FOUND', 404);
     }
 
-    return NextResponse.json({
-      success: true,
-      data: user,
-    });
-  } catch (error) {
-    console.error('Get user by ID error:', error);
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to retrieve user',
-        code: 'INTERNAL_ERROR',
-      },
-      { status: 500 }
+    return createSuccessResponse(user);
+  } catch (_error) {
+    return createErrorResponse(
+      'Failed to retrieve user',
+      'INTERNAL_ERROR',
+      500
     );
   }
 }
@@ -64,149 +71,77 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const routeParams = await params;
     const body = await request.json();
-    const { name, email, avatarUrl } = body;
 
-    if (!id) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'User ID is required',
-          code: 'MISSING_ID',
-        },
-        { status: 400 }
-      );
+    // Validate route parameters
+    const paramsValidation = validateRouteParams(
+      userIdParamsSchema,
+      routeParams
+    );
+    if (!paramsValidation.success) {
+      return createErrorResponse('User ID is required', 'MISSING_ID', 400);
     }
 
-    // Server-side validation
-    if (name !== undefined && (typeof name !== 'string' || !name.trim())) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Name must be a non-empty string',
-          code: 'INVALID_NAME',
-        },
-        { status: 400 }
-      );
-    }
-
-    // Email validation (if provided)
-    if (email !== undefined && email && typeof email === 'string') {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'Invalid email format',
-            code: 'INVALID_EMAIL_FORMAT',
-          },
-          { status: 400 }
-        );
+    // Validate request body
+    const bodyValidation = validateRequestBody(userUpdateSchema, body);
+    if (!bodyValidation.success) {
+      const firstError = bodyValidation.error.issues[0];
+      let errorCode = 'VALIDATION_ERROR';
+      if (firstError.path.includes('name')) {
+        errorCode = 'INVALID_NAME';
+      } else if (firstError.path.includes('email')) {
+        errorCode = 'INVALID_EMAIL_FORMAT';
       }
+
+      return createErrorResponse(firstError.message, errorCode, 400);
     }
+
+    const { id } = paramsValidation.data;
+    const { name, email, avatarUrl } = bodyValidation.data;
 
     // Call Convex mutation to update user
     const updatedUser = await client.mutation(api.users.updateUser, {
       userId: id as Id<'users'>,
-      name: name ? name.trim() : undefined,
-      email: email || undefined,
-      avatarUrl: avatarUrl || undefined,
+      name,
+      email,
+      avatarUrl,
     });
 
-    return NextResponse.json({
-      success: true,
-      data: updatedUser,
-    });
+    return createSuccessResponse(updatedUser);
   } catch (error) {
-    console.error('Update user error:', error);
-
-    // Handle Convex errors
-    if (error instanceof Error) {
-      if (error.message.includes('User not found')) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'User not found',
-            code: 'USER_NOT_FOUND',
-          },
-          { status: 404 }
-        );
-      }
-
-      if (error.message.includes('Email already registered')) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'Email already registered by another user',
-            code: 'EMAIL_EXISTS',
-          },
-          { status: 409 }
-        );
-      }
-    }
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to update user',
-        code: 'INTERNAL_ERROR',
-      },
-      { status: 500 }
-    );
+    return handleConvexError(error);
   }
 }
 
 // DELETE user by ID
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const routeParams = await params;
 
-    if (!id) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'User ID is required',
-          code: 'MISSING_ID',
-        },
-        { status: 400 }
-      );
+    // Validate route parameters
+    const validation = validateRouteParams(userIdParamsSchema, routeParams);
+    if (!validation.success) {
+      return createErrorResponse('User ID is required', 'MISSING_ID', 400);
     }
+
+    const { id } = validation.data;
 
     // Call Convex mutation to delete user
     const result = await client.mutation(api.users.deleteUser, {
       userId: id as Id<'users'>,
     });
 
-    return NextResponse.json({
-      success: true,
-      data: result,
-    });
+    return createSuccessResponse(result);
   } catch (error) {
-    console.error('Delete user error:', error);
-
     // Handle Convex errors
     if (error instanceof Error && error.message.includes('User not found')) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'User not found',
-          code: 'USER_NOT_FOUND',
-        },
-        { status: 404 }
-      );
+      return createErrorResponse('User not found', 'USER_NOT_FOUND', 404);
     }
 
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to delete user',
-        code: 'INTERNAL_ERROR',
-      },
-      { status: 500 }
-    );
+    return createErrorResponse('Failed to delete user', 'INTERNAL_ERROR', 500);
   }
 }

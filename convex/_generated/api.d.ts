@@ -13,6 +13,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as messages from "../messages.js";
 import type * as queries from "../queries.js";
 import type * as users from "../users.js";
 
@@ -25,6 +26,7 @@ import type * as users from "../users.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  messages: typeof messages;
   queries: typeof queries;
   users: typeof users;
 }>;

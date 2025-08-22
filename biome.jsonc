@@ -1,15 +1,35 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.2.0/schema.json",
-  "extends": [
-    "ultracite"
-  ],
+  "extends": ["ultracite"],
   "files": {
     "includes": [
       "src/**/*",
       "*.json",
       "*.jsonc",
       "*.md",
-      "!convex/**/*"
+      "!convex/**/*",
+      "!*.css"
     ]
+  },
+  "linter": {
+    "rules": {
+      "suspicious": {
+        "noUnknownAtRules": "off",
+        "noDocumentCookie": "off"
+      },
+      "performance": {
+        "noNamespaceImport": "off"
+      },
+      "a11y": {
+        "useFocusableInteractive": "off",
+        "useSemanticElements": "off"
+      },
+      "style": {
+        "noMagicNumbers": "off"
+      },
+      "nursery": {
+        "noShadow": "off"
+      }
+    }
   }
 }

@@ -21,7 +21,7 @@ export const getAllConversations = query({
   handler: async (ctx) => {
     const conversations = await ctx.db
       .query('conversations')
-      .order('desc', 'lastMessageAt')
+      .order('desc')
       .collect();
 
     return await Promise.all(
@@ -96,7 +96,7 @@ export const getAllMessages = query({
   handler: async (ctx) => {
     const messages = await ctx.db
       .query('messages')
-      .order('desc', 'createdAt')
+      .order('desc')
       .collect();
 
     return await Promise.all(
@@ -152,6 +152,37 @@ export const getFilesByUser = query({
         return {
           ...file,
           conversation,
+        };
+      })
+    );
+  },
+});
+
+// Get users with message statistics
+export const getUsersWithStats = query({
+  handler: async (ctx) => {
+    const users = await ctx.db.query('users').order('desc').collect();
+    
+    return await Promise.all(
+      users.map(async (user) => {
+        // Get all messages for this user
+        const messages = await ctx.db
+          .query('messages')
+          .withIndex('by_created_at')
+          .filter((q) => q.eq(q.field('userId'), user._id))
+          .collect();
+
+        // Find the most recent message
+        const lastMessage = messages.length > 0 
+          ? messages.reduce((latest, current) => 
+              current.createdAt > latest.createdAt ? current : latest
+            )
+          : null;
+
+        return {
+          ...user,
+          messageCount: messages.length,
+          lastMessageDate: lastMessage?.createdAt ?? null,
         };
       })
     );
