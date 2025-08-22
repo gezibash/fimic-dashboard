@@ -6,6 +6,7 @@ import {
   AGGridWrapper,
   type AGGridWrapperRef,
 } from '@/components/ag-grid/ag-grid-wrapper';
+import { ActionsCellRenderer } from './actions-cell-renderer';
 
 export type User = {
   _id: string;
@@ -15,6 +16,8 @@ export type User = {
   phone: string;
   avatarUrl?: string;
   createdAt: number;
+  messageCount: number;
+  lastMessageDate: number | null;
 };
 
 type UsersGridProps = {
@@ -51,10 +54,33 @@ export const UsersGrid = ({
         minWidth: 120,
       },
       {
+        field: 'messageCount',
+        headerName: 'Messages',
+        width: 100,
+        cellClass: 'text-center',
+        valueFormatter: (params: { value?: number }) => {
+          return params.value?.toLocaleString() ?? '0';
+        },
+      },
+      {
+        field: 'lastMessageDate',
+        headerName: 'Last Message',
+        width: 130,
+        valueFormatter: (params: { value?: number | null }) => {
+          if (!params.value) {
+            return 'Never';
+          }
+          return new Date(params.value).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+          });
+        },
+      },
+      {
         field: 'createdAt',
         headerName: 'Created',
-        flex: 1,
-        minWidth: 120,
+        width: 120,
         valueFormatter: (params: { value?: number }) => {
           if (!params.value) {
             return '-';
@@ -65,6 +91,16 @@ export const UsersGrid = ({
             year: 'numeric',
           });
         },
+      },
+      {
+        headerName: 'Actions',
+        cellRenderer: ActionsCellRenderer,
+        width: 80,
+        pinned: 'right',
+        sortable: false,
+        filter: false,
+        resizable: false,
+        suppressMenu: true,
       },
     ],
     []

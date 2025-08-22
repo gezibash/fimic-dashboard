@@ -6,7 +6,7 @@ import { api } from '@/../convex/_generated/api';
 import { UsersGrid } from './components/users-grid';
 
 export default function UsersPage() {
-  const users = useQuery(api.queries.getAllUsers);
+  const users = useQuery(api.queries.getUsersWithStats);
 
   return (
     <div className="flex flex-1 flex-col gap-4">
