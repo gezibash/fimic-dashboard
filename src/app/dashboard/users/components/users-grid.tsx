@@ -100,7 +100,6 @@ export const UsersGrid = ({
         sortable: false,
         filter: false,
         resizable: false,
-        suppressMenu: true,
       },
     ],
     []
