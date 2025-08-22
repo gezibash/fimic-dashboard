@@ -1,123 +1,69 @@
 import { ConvexHttpClient } from 'convex/browser';
-import { type NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import {
+  createErrorResponse,
+  createSuccessResponse,
+  validateRequestBody,
+} from '@/lib/utils';
+import { userRegistrationSchema } from '@/lib/validations/user';
 import { api } from '../../../../../convex/_generated/api';
 
-const PHONE_REGEX = /^(\+41[1-9]\d{8}|\+383[4-9]\d{7,8})$/;
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 const client = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL ?? '');
-
-function validateRegistrationData(
-  name: unknown,
-  phone: unknown,
-  email: unknown
-) {
-  if (!name || typeof name !== 'string' || !name.trim()) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Name is required and must be a non-empty string',
-        code: 'INVALID_NAME',
-      },
-      { status: 400 }
-    );
-  }
-
-  if (!phone || typeof phone !== 'string') {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Phone number is required',
-        code: 'MISSING_PHONE',
-      },
-      { status: 400 }
-    );
-  }
-
-  if (!PHONE_REGEX.test(phone)) {
-    return NextResponse.json(
-      {
-        success: false,
-        error:
-          'Invalid phone number format. Please use Swiss (+41XXXXXXXXX) or Kosovo (+383XXXXXXXX) format',
-        code: 'INVALID_PHONE_FORMAT',
-      },
-      { status: 400 }
-    );
-  }
-
-  if (email && typeof email === 'string' && !EMAIL_REGEX.test(email)) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Invalid email format',
-        code: 'INVALID_EMAIL_FORMAT',
-      },
-      { status: 400 }
-    );
-  }
-
-  return null;
-}
 
 function handleRegistrationError(error: unknown) {
   if (error instanceof Error) {
     if (error.message.includes('Phone number already registered')) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Phone number already registered',
-          code: 'PHONE_EXISTS',
-        },
-        { status: 409 }
+      return createErrorResponse(
+        'Phone number already registered',
+        'PHONE_EXISTS',
+        409
       );
     }
 
     if (error.message.includes('Email already registered')) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Email already registered',
-          code: 'EMAIL_EXISTS',
-        },
-        { status: 409 }
+      return createErrorResponse(
+        'Email already registered',
+        'EMAIL_EXISTS',
+        409
       );
     }
   }
 
-  return NextResponse.json(
-    {
-      success: false,
-      error: 'Internal server error',
-      code: 'INTERNAL_ERROR',
-    },
-    { status: 500 }
-  );
+  return createErrorResponse('Internal server error', 'INTERNAL_ERROR', 500);
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, phone, email, avatarUrl } = body;
 
-    // Server-side validation
-    const validationError = validateRegistrationData(name, phone, email);
-    if (validationError) {
-      return validationError;
+    // Validate request body with Zod
+    const validation = validateRequestBody(userRegistrationSchema, body);
+    if (!validation.success) {
+      const firstError = validation.error.errors[0];
+      let errorCode = 'VALIDATION_ERROR';
+
+      if (firstError.code === 'too_small' && firstError.path.includes('name')) {
+        errorCode = 'INVALID_NAME';
+      } else if (firstError.path.includes('phone')) {
+        errorCode = 'INVALID_PHONE_FORMAT';
+      } else if (firstError.path.includes('email')) {
+        errorCode = 'INVALID_EMAIL_FORMAT';
+      }
+
+      return createErrorResponse(firstError.message, errorCode, 400);
     }
+
+    const { name, phone, email, avatarUrl } = validation.data;
 
     // Call Convex mutation
     const user = await client.mutation(api.users.registerUser, {
-      name: name.trim(),
+      name,
       phone,
-      email: email || undefined,
-      avatarUrl: avatarUrl || undefined,
+      email,
+      avatarUrl,
     });
 
-    return NextResponse.json({
-      success: true,
-      data: user,
-    });
+    return createSuccessResponse(user);
   } catch (error) {
     return handleRegistrationError(error);
   }
