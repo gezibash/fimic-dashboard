@@ -2,7 +2,7 @@
 
 import { useQuery } from 'convex/react';
 import { api } from '@/../convex/_generated/api';
-import { UsersGrid } from '@/components/ag-grid/UsersGrid';
+import { UsersGrid } from '@/components/ag-grid/users-grid';
 import {
   Card,
   CardContent,
@@ -22,7 +22,7 @@ export default function UsersPage() {
     );
   }
 
-  const handleUserSelect = (user: {
+  const handleUserSelect = (_user: {
     _id: string;
     name: string;
     email?: string;

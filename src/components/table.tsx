@@ -2,7 +2,7 @@
 
 import type { ColDef } from 'ag-grid-community';
 import { useMemo, useState } from 'react';
-import { AGGridWrapper } from './ag-grid';
+import { AGGridWrapper } from './ag-grid/ag-grid-wrapper';
 import { Button } from './ui/button';
 import {
   Card,
@@ -13,7 +13,7 @@ import {
 } from './ui/card';
 
 // Sample data for demonstration
-interface SampleData {
+type SampleData = {
   id: string;
   name: string;
   email: string;
@@ -22,7 +22,7 @@ interface SampleData {
   salary: number;
   startDate: string;
   status: 'active' | 'inactive';
-}
+};
 
 const generateSampleData = (): SampleData[] => {
   const departments = ['Engineering', 'Sales', 'Marketing', 'HR', 'Finance'];
@@ -76,7 +76,7 @@ export default function TableDemo() {
         headerName: 'Role',
         flex: 1,
         minWidth: 120,
-        cellRenderer: (params: any) => (
+        cellRenderer: (params: { value: string }) => (
           <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 font-medium text-blue-700 text-xs ring-1 ring-blue-700/20 ring-inset dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">
             {params.value}
           </span>
@@ -94,7 +94,7 @@ export default function TableDemo() {
         headerName: 'Salary',
         flex: 1,
         minWidth: 120,
-        valueFormatter: (params: any) =>
+        valueFormatter: (params: { value: number }) =>
           new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'USD',
@@ -109,7 +109,7 @@ export default function TableDemo() {
         headerName: 'Start Date',
         flex: 1,
         minWidth: 130,
-        valueFormatter: (params: any) =>
+        valueFormatter: (params: { value: string }) =>
           new Date(params.value).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
@@ -125,7 +125,7 @@ export default function TableDemo() {
         headerName: 'Status',
         flex: 1,
         minWidth: 100,
-        cellRenderer: (params: any) => {
+        cellRenderer: (params: { value: string }) => {
           const isActive = params.value === 'active';
           return (
             <span

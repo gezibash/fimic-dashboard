@@ -2,7 +2,6 @@
 
 import type {
   CellClickedEvent,
-  ColDef,
   FilterChangedEvent,
   GridApi,
   GridOptions,
@@ -35,8 +34,10 @@ import 'ag-grid-community/styles/ag-theme-quartz.css';
 // Register AG Grid modules
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-export interface AGGridWrapperProps<TData = any>
-  extends Omit<GridOptions<TData>, 'theme'> {
+export type AGGridWrapperProps<TData = Record<string, unknown>> = Omit<
+  GridOptions<TData>,
+  'theme'
+> & {
   /** Height of the grid container */
   height?: number | string;
   /** Width of the grid container */
@@ -65,9 +66,9 @@ export interface AGGridWrapperProps<TData = any>
   onSortChanged?: (event: SortChangedEvent<TData>) => void;
   /** Callback when filtering changes */
   onFilterChanged?: (event: FilterChangedEvent<TData>) => void;
-}
+};
 
-export interface AGGridWrapperRef<TData = any> {
+export type AGGridWrapperRef<TData = Record<string, unknown>> = {
   /** Get the AG Grid API instance */
   getGridApi: () => GridApi<TData> | null;
   /** Get selected rows */
@@ -80,9 +81,11 @@ export interface AGGridWrapperRef<TData = any> {
   exportToCsv: (filename?: string) => void;
   /** Auto-size all columns */
   autoSizeAllColumns: () => void;
-}
+};
 
-const AGGridWrapperComponent = <TData extends Record<string, any> = any>(
+const AGGridWrapperComponent = <
+  TData extends Record<string, unknown> = Record<string, unknown>,
+>(
   {
     height = 400,
     width = '100%',
@@ -166,16 +169,13 @@ const AGGridWrapperComponent = <TData extends Record<string, any> = any>(
     [enableSelection, selectionMode, loadingMessage, noDataMessage, themeConfig]
   );
 
-  // Merged grid options
-  const mergedGridOptions = useMemo(
-    () => ({
-      ...defaultGridOptions,
-      ...gridOptions,
-      rowData,
-      columnDefs,
-    }),
-    [defaultGridOptions, gridOptions, rowData, columnDefs]
-  );
+  // Merged grid options - don't memoize gridOptions since it's passed as prop
+  const mergedGridOptions = {
+    ...defaultGridOptions,
+    rowData,
+    columnDefs,
+    ...gridOptions, // Spread gridOptions last to allow overriding
+  };
 
   // Grid ready callback
   const onGridReady = useCallback(
@@ -216,7 +216,7 @@ const AGGridWrapperComponent = <TData extends Record<string, any> = any>(
       setSelectedRows: (rowIds: (string | number)[]) => {
         if (gridApiRef.current) {
           gridApiRef.current.forEachNode((node) => {
-            const isSelected = rowIds.includes(node.id!);
+            const isSelected = rowIds.includes(node.id || '');
             node.setSelected(isSelected);
           });
         }
@@ -268,7 +268,7 @@ const AGGridWrapperComponent = <TData extends Record<string, any> = any>(
 
 // Use forwardRef to support ref forwarding with generic types
 export const AGGridWrapper = forwardRef(AGGridWrapperComponent) as <
-  TData = any,
+  TData = Record<string, unknown>,
 >(
   props: AGGridWrapperProps<TData> & {
     ref?: React.Ref<AGGridWrapperRef<TData>>;

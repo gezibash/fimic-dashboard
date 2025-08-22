@@ -2,9 +2,9 @@
 
 import type { CellClickedEvent, ColDef } from 'ag-grid-community';
 import { useMemo, useRef } from 'react';
-import { AGGridWrapper, type AGGridWrapperRef } from './AGGridWrapper';
+import { AGGridWrapper, type AGGridWrapperRef } from './ag-grid-wrapper';
 
-export interface User {
+export type User = {
   _id: string;
   _creationTime: number;
   name: string;
@@ -12,15 +12,15 @@ export interface User {
   phone: string;
   avatarUrl?: string;
   createdAt: number;
-}
+};
 
-interface UsersGridProps {
+type UsersGridProps = {
   users: User[];
   height?: number | string;
   onUserSelect?: (user: User) => void;
   darkMode?: boolean;
   loading?: boolean;
-}
+};
 
 export const UsersGrid = ({
   users,
@@ -38,7 +38,7 @@ export const UsersGrid = ({
         headerName: 'Name',
         flex: 2,
         minWidth: 150,
-        cellRenderer: (params: any) => {
+        cellRenderer: (params: { data: User }) => {
           const { name, email } = params.data;
           return (
             <div className="flex flex-col py-1">
@@ -68,8 +68,10 @@ export const UsersGrid = ({
         headerName: 'Created',
         flex: 1,
         minWidth: 120,
-        valueFormatter: (params: any) => {
-          if (!params.value) return '-';
+        valueFormatter: (params: { value?: number }) => {
+          if (!params.value) {
+            return '-';
+          }
           return new Date(params.value).toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',
@@ -82,9 +84,11 @@ export const UsersGrid = ({
         headerName: 'ID',
         flex: 1,
         minWidth: 100,
-        valueFormatter: (params: any) => {
-          if (!params.value) return '-';
-          return params.value.substring(0, 8) + '...';
+        valueFormatter: (params: { value?: string }) => {
+          if (!params.value) {
+            return '-';
+          }
+          return `${params.value.substring(0, 8)}...`;
         },
       },
     ],
@@ -110,7 +114,7 @@ export const UsersGrid = ({
       columnDefs={columnDefs}
       darkMode={darkMode}
       enableSelection={true}
-      getRowClass={(params) => {
+      getRowClass={(_params) => {
         // Add custom row styling here if needed
         return '';
       }}

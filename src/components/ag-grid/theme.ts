@@ -1,6 +1,6 @@
 import type { GridOptions } from 'ag-grid-community';
 
-export interface GeistThemeParams {
+export type GeistThemeParams = {
   fontFamily?: string;
   fontSize?: number;
   headerFontSize?: number;
@@ -18,7 +18,7 @@ export interface GeistThemeParams {
   checkboxCheckedColor?: string;
   rangeSelectionBackgroundColor?: string;
   rangeSelectionBorderColor?: string;
-}
+};
 
 export const createGeistTheme = (darkMode = false): Partial<GridOptions> => {
   const lightThemeParams: GeistThemeParams = {
@@ -47,7 +47,7 @@ export const createGeistTheme = (darkMode = false): Partial<GridOptions> => {
     // The CSS variables handle the dark mode switching
   };
 
-  const params = darkMode ? darkThemeParams : lightThemeParams;
+  const _params = darkMode ? darkThemeParams : lightThemeParams;
 
   return {
     // Don't set the theme property here - it will be handled by CSS classes
@@ -57,7 +57,7 @@ export const createGeistTheme = (darkMode = false): Partial<GridOptions> => {
 };
 
 // CSS-in-JS styles for the AG Grid theme
-export const getGridThemeStyles = (darkMode = false): React.CSSProperties => {
+export const getGridThemeStyles = (_darkMode = false): React.CSSProperties => {
   return {
     fontFamily: 'var(--font-geist-sans)',
     fontSize: '14px',
