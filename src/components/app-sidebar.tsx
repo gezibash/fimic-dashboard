@@ -1,5 +1,6 @@
 'use client';
 
+import { useUser } from '@clerk/nextjs';
 import {
   Building,
   Command,
@@ -24,44 +25,44 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 
-const data = {
-  user: {
-    name: 'Admin User',
-    email: 'admin@fimic.ch',
-    avatar: '/avatars/admin.jpg',
+const navMainItems = [
+  {
+    title: 'Dashboard',
+    url: '/',
+    icon: Building,
+    isActive: true,
   },
-  navMain: [
-    {
-      title: 'Dashboard',
-      url: '/',
-      icon: Building,
-      isActive: true,
-    },
-    {
-      title: 'Users',
-      url: '/users',
-      icon: Users,
-    },
-    {
-      title: 'Conversations',
-      url: '/conversations',
-      icon: MessageSquare,
-    },
-    {
-      title: 'Files',
-      url: '/files',
-      icon: FileText,
-    },
-    {
-      title: 'Settings',
-      url: '/settings',
-      icon: Settings2,
-    },
-  ],
-  navSecondary: [],
-};
+  {
+    title: 'Users',
+    url: '/users',
+    icon: Users,
+  },
+  {
+    title: 'Conversations',
+    url: '/conversations',
+    icon: MessageSquare,
+  },
+  {
+    title: 'Files',
+    url: '/files',
+    icon: FileText,
+  },
+  {
+    title: 'Settings',
+    url: '/settings',
+    icon: Settings2,
+  },
+];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user } = useUser();
+
+  const userData = {
+    name: user?.fullName || 'User',
+    email: user?.primaryEmailAddress?.emailAddress || 'user@example.com',
+    avatar: user?.imageUrl || '',
+  };
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -82,11 +83,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavSecondary className="mt-auto" items={data.navSecondary} />
+        <NavMain items={navMainItems} />
+        <NavSecondary className="mt-auto" items={[]} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={userData} />
       </SidebarFooter>
     </Sidebar>
   );

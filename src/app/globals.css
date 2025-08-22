@@ -120,3 +120,94 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  /* Layout containers with consistent spacing */
+  .page-container {
+    @apply flex flex-1 flex-col;
+  }
+
+  .page-content {
+    @apply p-4 sm:p-6 lg:p-8 space-y-6;
+  }
+
+  .page-header {
+    @apply space-y-2 pb-6;
+  }
+
+  .page-title {
+    @apply font-bold text-3xl tracking-tight;
+  }
+
+  .page-description {
+    @apply text-muted-foreground text-base;
+  }
+
+  /* Card layouts with improved spacing */
+  .card-grid {
+    @apply grid gap-6 md:grid-cols-2 lg:grid-cols-4;
+  }
+
+  .content-grid {
+    @apply grid gap-6 md:grid-cols-2 lg:grid-cols-7;
+  }
+
+  /* Table improvements */
+  .data-table {
+    @apply w-full rounded-lg border bg-card;
+  }
+
+  .data-table-header {
+    @apply border-b bg-muted/50 px-6 py-4;
+  }
+
+  .data-table-content {
+    @apply p-6;
+  }
+
+  /* Responsive spacing utilities */
+  .section-spacing {
+    @apply space-y-6;
+  }
+
+  .element-spacing {
+    @apply space-y-4;
+  }
+
+  /* AG Grid Theme Customization */
+  .ag-theme-alpine {
+    --ag-font-family: var(--font-geist-sans);
+    --ag-font-size: 14px;
+    --ag-background-color: hsl(var(--background));
+    --ag-foreground-color: hsl(var(--foreground));
+    --ag-border-color: hsl(var(--border));
+    --ag-secondary-border-color: hsl(var(--border));
+    --ag-header-background-color: hsl(var(--muted));
+    --ag-header-foreground-color: hsl(var(--muted-foreground));
+    --ag-odd-row-background-color: hsl(var(--background));
+    --ag-row-hover-color: hsl(var(--muted) / 0.5);
+    --ag-selected-row-background-color: hsl(var(--accent));
+    --ag-selected-row-border-color: hsl(var(--border));
+    --ag-checkbox-checked-color: hsl(var(--primary));
+    --ag-range-selection-background-color: hsl(var(--accent) / 0.3);
+    --ag-range-selection-border-color: hsl(var(--primary));
+  }
+
+  .ag-theme-alpine .ag-header {
+    border-bottom: 1px solid hsl(var(--border));
+  }
+
+  .ag-theme-alpine .ag-row {
+    border-bottom: 1px solid hsl(var(--border));
+  }
+
+  .ag-theme-alpine .ag-paging-panel {
+    border-top: 1px solid hsl(var(--border));
+    background-color: hsl(var(--muted) / 0.3);
+  }
+
+  .ag-theme-alpine .ag-root-wrapper {
+    border: 1px solid hsl(var(--border));
+    border-radius: calc(var(--radius) - 2px);
+  }
+}
