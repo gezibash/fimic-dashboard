@@ -22,7 +22,11 @@ export default function UsersPage() {
     );
   }
 
-  const handleUserSelect = (user: { _id: string; name: string; email?: string }) => {
+  const handleUserSelect = (user: {
+    _id: string;
+    name: string;
+    email?: string;
+  }) => {
     // Handle user selection - could navigate to user detail page
   };
 
