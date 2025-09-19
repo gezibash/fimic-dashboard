@@ -27,7 +27,7 @@ export const userRegistrationSchema = z.object({
   name: z.string().min(1, 'Name is required').trim(),
   phone: phoneSchema,
   email: emailSchema,
-  avatarUrl: z.string().url().optional(),
+  avatarUrl: z.url('Invalid URL format').optional(),
 });
 
 // User query by phone schema
@@ -62,7 +62,7 @@ export const apiResponseSchema = z.union([apiErrorSchema, apiSuccessSchema]);
 export const userUpdateSchema = z.object({
   name: z.string().min(1).trim().optional(),
   email: emailSchema,
-  avatarUrl: z.url().optional(),
+  avatarUrl: z.string().url('Invalid URL format').optional(),
 });
 
 // ID parameter schema
@@ -70,11 +70,30 @@ export const userIdParamsSchema = z.object({
   id: z.string().min(1),
 });
 
+// OTP verification schema
+export const otpVerificationSchema = z.object({
+  phone: phoneSchema,
+  otp: z.string().min(1, 'OTP is required'),
+  timestamp: z.number().int().positive(),
+});
+
+// Check user existence schema
+export const checkUserSchema = z.object({
+  phone: z
+    .string()
+    .regex(
+      /^(\+41\s?[0-9]{2}\s?[0-9]{3}\s?[0-9]{2}\s?[0-9]{2}|\+383\s?[0-9]{2}\s?[0-9]{3}\s?[0-9]{3})$/,
+      'Invalid phone number format. Please use Swiss (+41) or Kosovo (+383) format'
+    ),
+});
+
 // Type exports using Zod inference
 export type UserRegistrationInput = z.infer<typeof userRegistrationSchema>;
 export type UserUpdateInput = z.infer<typeof userUpdateSchema>;
 export type UserIdParams = z.infer<typeof userIdParamsSchema>;
 export type UserPhoneQuery = z.infer<typeof userPhoneQuerySchema>;
+export type OtpVerificationInput = z.infer<typeof otpVerificationSchema>;
+export type CheckUserInput = z.infer<typeof checkUserSchema>;
 export type ApiError = z.infer<typeof apiErrorSchema>;
 export type ApiSuccess = z.infer<typeof apiSuccessSchema>;
 export type ApiResponse = z.infer<typeof apiResponseSchema>;
